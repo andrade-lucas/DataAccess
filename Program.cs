@@ -1,4 +1,4 @@
-﻿using Dapper;
+using Dapper;
 using DataAccess.Models;
 using Microsoft.Data.SqlClient;
 
