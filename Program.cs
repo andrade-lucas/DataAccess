@@ -1,70 +1,62 @@
-﻿using DataAccess.Models;
-using DataAccess.Repositories;
+﻿
+using DataAccess;
+using DataAccess.Screens.TagScreens;
 using Microsoft.Data.SqlClient;
 
-const string connectionString = "Server=localhost,1433; Database=Blog;User Id=sa; Password=1q2w3e4r@#$;TrustServerCertificate=True";
-
-var connection = new SqlConnection(connectionString);
-connection.Open();
-
-ReadUser(connection);
-//CreateUser(connection);
-//ReadRoles(connection);
-//ReadTags(connection);
-
-connection.Close();
-
-static void ReadUser(SqlConnection connection)
+internal class Program
 {
-    var repository = new UserRepository(connection);
-    var items = repository.GetWithRoles();
-
-    foreach (var item in items)
+    private static void Main(string[] args)
     {
-        Console.WriteLine($"{item.Name} ({item.Email})");
-        foreach (var role in item.Roles)
+        const string connectionString = "Server=localhost,1433; Database=Blog;User Id=sa; Password=1q2w3e4r@#$;TrustServerCertificate=True";
+
+        Database.connection = new SqlConnection(connectionString);
+        Database.connection.Open();
+
+        Load();
+
+        Database.connection.Close();
+
+        Console.ReadKey();
+    }
+
+    public static void Load()
+    {
+        try
         {
-            Console.WriteLine($"- {role.Name}");
+            Console.Clear();
+            Console.WriteLine("Meu Blog");
+            Console.WriteLine("-----------------");
+            Console.WriteLine("O que deseja fazer?");
+            Console.WriteLine("");
+            Console.WriteLine("1- Gestão de usuário");
+            Console.WriteLine("2- Gestão de perfil");
+            Console.WriteLine("3- Gestão de categoria");
+            Console.WriteLine("4- Gestão de tag");
+            Console.WriteLine("5- Vincular perfil/usuário");
+            Console.WriteLine("6- Vincular post/tag");
+            Console.WriteLine("7- Relatório");
+            Console.WriteLine("0- Sair");
+            Console.WriteLine();
+            Console.WriteLine();
+            var options = short.Parse(Console.ReadLine()!);
+
+            switch (options)
+            {
+                case 4:
+                    MenuTagScreen.Load();
+                    break;
+                case 0:
+                    Console.WriteLine("Finalizando aplicação...");
+                    Environment.Exit(0);
+                    break;
+                default:
+                    Load();
+                    break;
+            }
+        }
+        catch
+        {
+            Load();
         }
     }
-}
-
-static void CreateUser(SqlConnection connection)
-{
-    var user = new User
-    {
-        Name = "Teste",
-        Email = "teste@teste.com",
-        Bio = "aaaaa aaaa aa aa a",
-        Image = "https://",
-        PasswordHash = "HASH",
-        Slug = "teste-01"
-    };
-    //var role = new Role
-    //{
-    //    Name = "Teste",
-    //    Slug = "teste-01"
-    //};
-    //user.Roles.Add(role);
-
-    var repository = new Repository<User>(connection);
-    repository.Create(user);
-}
-
-static void ReadRoles(SqlConnection connection)
-{
-    var repository = new Repository<Role>(connection);
-    var items = repository.GetAll();
-
-    foreach (var item in items)
-        Console.WriteLine("Role: " + item.Name);
-}
-
-static void ReadTags(SqlConnection connection)
-{
-    var repository = new Repository<Tag>(connection);
-    var items = repository.GetAll();
-
-    foreach (var item in items)
-        Console.WriteLine("Tag: " + item.Name);
 }
