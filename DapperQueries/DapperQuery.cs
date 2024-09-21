@@ -1,12 +1,7 @@
 ﻿using Dapper;
 using DataAccess.Models;
 using Microsoft.Data.SqlClient;
-using System;
-using System.Collections.Generic;
 using System.Data;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace DataAccess.DapperQueries;
 
@@ -16,7 +11,7 @@ public static class DapperQuery
 
     public static void ListCategories(SqlConnection connection)
     {
-        var categories = connection.Query<Category>("SELECT [Id], [Title] FROM [Category]");
+        var categories = connection.Query<CategoryDapper>("SELECT [Id], [Title] FROM [Category]");
         foreach (var item in categories)
         {
             Console.WriteLine($"{item.Id} - {item.Title}");
@@ -25,7 +20,7 @@ public static class DapperQuery
 
     public static void CreateCategory(SqlConnection connection)
     {
-        var category = new Category();
+        var category = new CategoryDapper();
         category.Id = Guid.NewGuid();
         category.Title = "PlayStation 5";
         category.Url = "amazon";
@@ -55,7 +50,7 @@ public static class DapperQuery
 
     public static void CreateManyCategory(SqlConnection connection)
     {
-        var category = new Category();
+        var category = new CategoryDapper();
         category.Id = Guid.NewGuid();
         category.Title = "GCP";
         category.Url = "console.googlecloud.com";
@@ -64,7 +59,7 @@ public static class DapperQuery
         category.Summary = "AWS Cloud";
         category.Featured = false;
 
-        var category2 = new Category();
+        var category2 = new CategoryDapper();
         category2.Id = Guid.NewGuid();
         category2.Title = "Azure DevOps";
         category2.Url = "dev.azure.com";
@@ -109,7 +104,7 @@ public static class DapperQuery
 
     public static void ExecuteScalar(SqlConnection connection)
     {
-        var category = new Category();
+        var category = new CategoryDapper();
         category.Title = "PlayStation 5";
         category.Url = "amazon";
         category.Description = "Categoria destinada à serviços do AWS";
@@ -199,7 +194,7 @@ public static class DapperQuery
 
         using (var multi = connection.QueryMultiple(sql))
         {
-            var categories = multi.Read<Category>();
+            var categories = multi.Read<CategoryDapper>();
             var courses = multi.Read<Course>();
 
             foreach (var item in categories)
@@ -251,7 +246,7 @@ public static class DapperQuery
 
     public static void Transaction(SqlConnection connection)
     {
-        var category = new Category();
+        var category = new CategoryDapper();
         category.Id = Guid.NewGuid();
         category.Title = "C# .NET";
         category.Url = "amazon";
