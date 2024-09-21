@@ -1,27 +1,42 @@
-﻿using Dapper.Contrib.Extensions;
+﻿using Dapper;
 using DataAccess.Models;
 using Microsoft.Data.SqlClient;
 
 namespace DataAccess.Repositories;
 
-public class UserRepository
+public class UserRepository : Repository<User>
 {
     private readonly SqlConnection _connection;
-
-    public UserRepository(SqlConnection connection)
-        => _connection = connection;
-
-    public IEnumerable<User> Get() => _connection.GetAll<User>();
-
-    public User GetById(int userId) => _connection.Get<User>(userId);
-
-    public void Create(User user) => _connection.Insert<User>(user);
-
-    public void Update(User user) => _connection.Update<User>(user);
-
-    public void Delete(int userId)
+    public UserRepository(SqlConnection connection) : base(connection)
     {
-        var user = _connection.Get<User>(4);
-        _connection.Delete<User>(user);
+        _connection = connection;
+    }
+
+    public List<User> GetWithRoles()
+    {
+        var query = @"select [User].*, [Role].* from [User]
+            left join [UserRole] on [UserRole].[UserId] = [User].[Id]
+            left join [Role] on [UserRole].[RoleId] = [Role].[Id]";
+
+        var users = new List<User>();
+
+        var items = _connection.Query<User, Role, User>(query, (user, role) =>
+        {
+            var usr = users.FirstOrDefault(x => x.Id == user.Id);
+            if (usr == null)
+            {
+                usr = user;
+                usr.AddRole(role);
+                users.Add(usr);
+            }
+            else
+            {
+                usr.AddRole(role);
+            }
+
+            return user;
+        }, splitOn: "Id");
+
+        return users;
     }
 }
